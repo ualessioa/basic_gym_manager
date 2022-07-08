@@ -19,7 +19,7 @@ class Palestra:
 wellness = Palestra("Wellness Club")
 
 #Programma Visibile a schermo
-print(f"Benvenuto in Wellness Manager, cosa vorresti fare?")
+print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura")
 master_input = input("> ")
 while not master_input == "esci":
     if master_input == "apertura":
