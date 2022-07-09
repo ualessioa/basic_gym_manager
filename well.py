@@ -13,12 +13,19 @@ def crea_cliente(palestra):#definire meglio lo scopo di questa funzione, al mome
 data = None
 orario = None
 giorno = None
+mese = None
+anno = None
 
 def definisci_momento():#da implementare ulteriormente
-    global data, orario, giorno
+    global data, orario, giorno, mese, anno
     now = datetime.datetime.now()
-    data = now.strftime("%x")
-    print(data)
+    giorno = now.strftime("%d")
+    mese = now.strftime("%m")
+    anno = now.strftime("%Y")
+    data = f"{giorno}/{mese}/{anno}"
+    #print(data)
+    orario = now.strftime("%X")
+    #print(int(orario[:2]))
 
 
 #Classi
@@ -79,6 +86,10 @@ wellness = Palestra("Wellness Club", elenco_iscritti = ["Prova"], abbonamenti = 
 
 #Script
 definisci_momento()
+if 9 <= int(orario[:2]) <= 11 or 16 <= int(orario[:2]) <= 21:#determina se la palestra è aperta in base all'orario, giorni da implementare
+    wellness.aperta = True
+else:
+    wellness.aperta = False
 print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente")
 master_input = input("> ")
 while not master_input == "esci":
