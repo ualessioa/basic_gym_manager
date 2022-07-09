@@ -1,6 +1,5 @@
 #Librerie
 import datetime
-from re import X
 
 #Funzioni globali
 def crea_cliente(palestra):#definire meglio lo scopo di questa funzione, al momento globale
