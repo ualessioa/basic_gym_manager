@@ -15,14 +15,16 @@ orario = None
 giorno = None
 mese = None
 anno = None
+giorno_sett = None
 
 def definisci_momento():#da implementare ulteriormente
-    global data, orario, giorno, mese, anno
+    global data, orario, giorno, mese, anno, giorno_sett
     now = datetime.datetime.now()
     giorno = now.strftime("%d")
     mese = now.strftime("%m")
     anno = now.strftime("%Y")
     data = f"{giorno}/{mese}/{anno}"
+    giorno_sett = now.strftime("%A")
     #print(data)
     orario = now.strftime("%X")
     #print(int(orario[:2]))
@@ -30,7 +32,7 @@ def definisci_momento():#da implementare ulteriormente
 
 #Classi
 class Palestra:
-    def __init__(self, nome, nr_iscritti = 0, elenco_iscritti = [], abbonamenti = {}, corsi = [], aperta = False, istruttori = [], cassa = 0):
+    def __init__(self, nome, nr_iscritti = 0, elenco_iscritti = [], abbonamenti = {}, corsi = [], aperta = False, istruttori = [], cassa = 0, orari_apertura = {}):
         self.nome = nome
         self.nr_iscritti = nr_iscritti
         self.elenco_iscritti = []
@@ -39,6 +41,7 @@ class Palestra:
         self.aperta = aperta
         self.istruttori = istruttori
         self.cassa = cassa
+        self.orari_apertura = orari_apertura
     
     def apri_chiudi(self):
         self.aperta = not self.aperta
@@ -81,12 +84,13 @@ class Cliente:
         return f"{self.nome} abbonato con {self.abbonamento}"
 
 #Oggetti
-wellness = Palestra("Wellness Club", elenco_iscritti = ["Prova"], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"])
-
+wellness = Palestra("Wellness Club", elenco_iscritti = ["Prova"], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,11,16,21), "Tuesday" : (9,11,16,21), "Wednesday" : (9,11,16,21), "Thursday" : (9,11,16,21), "Friday" : (9,11,16,21), "Saturday" : (10,11,16,18)})
+#wellness2 = Palestra("Wellness Club", elenco_iscritti = ["Prova"], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,21), "Tuesday" : (9,21), "Wednesday" :(9,21), "Thursday" : (9,21), "Friday" : (9,21), "Saturday" : (10,18)})
+#wellness2 test apertura orario continuato, con soli 2 orari al posto di 4 nella lista all'interno del dizionario degli orari
 
 #Script
 definisci_momento()
-if 9 <= int(orario[:2]) <= 11 or 16 <= int(orario[:2]) <= 21:#determina se la palestra è aperta in base all'orario, giorni da implementare
+if giorno_sett in wellness.orari_apertura.keys() and (wellness.orari_apertura[giorno_sett][0] <= int(orario[:2]) <= wellness.orari_apertura[giorno_sett][1] or wellness.orari_apertura[giorno_sett][2] <= int(orario[:2]) <= wellness.orari_apertura[giorno_sett][3]):
     wellness.aperta = True
 else:
     wellness.aperta = False
