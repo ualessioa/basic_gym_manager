@@ -104,8 +104,9 @@ class Palestra:
             print("La palestra è chiusa!")
 
     def __repr__(self):
-        pass
-    
+        message = f"La {self.nome} è una palestra con {self.nr_iscritti} iscritti, i suoi corsi sono: {self.corsi}\nGli abbonamenti sono: {self.abbonamenti}\nGli istruttori sono: {self.istruttori}\nIl planning di oggi è: {self.planning}\n" + ("La palestra è aperta adesso!" if self.aperta else "La palestra al momento è chiusa!")
+        return message
+
     def cerca_cliente(self):
         nome = input("Inserisci il nome  completo del cliente da cercare\n> ")
         if nome in self.elenco_iscritti:
@@ -121,8 +122,9 @@ class Cliente:
         self.in_struttura = in_struttura
         
     def __repr__(self):
-        return f"{self.nome} abbonato con {self.abbonamento}"
-    
+        message = f"{self.nome} abbonato con {self.abbonamento}\n" + (f"{self.nome} al momento è in struttura" if self.in_struttura else f"{self.nome} al momento non è in struttura")
+        return message
+
     def arrivo_uscita_struttura(self):
         self.in_struttura = not self.in_struttura
     
@@ -150,6 +152,7 @@ if giorno_sett in wellness.orari_apertura.keys() and (wellness.orari_apertura[gi
 else:
     wellness.aperta = False
 print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento")
+wellness.planner()
 master_input = input("> ")
 while not master_input == "esci":
     if master_input == "apertura" or master_input == "1":
@@ -158,15 +161,17 @@ while not master_input == "esci":
         try:
             cliente = wellness.crea_cliente()
             wellness.aggiungi_cliente(cliente)
-            #print(cliente)
+            print(cliente)
         except:
             print("Errore!")
     elif master_input == "prenota" or master_input == "3":
-        wellness.planner()
+        #wellness.planner() spostato dopo il primo controllo sull'apertura della palestra per avere a disposizione il planning globalmente
         print(wellness.planning) 
         if wellness.cerca_cliente():
             cliente.prenotazione(wellness)
             print(wellness.planning)
+    elif master_input == "4":#da implementare o togliere
+        print(wellness)
     else:
         print("Input non valido, riprova")
     master_input = input("> ")
