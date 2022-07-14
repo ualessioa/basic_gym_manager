@@ -8,6 +8,8 @@ giorno = None
 mese = None
 anno = None
 giorno_sett = None
+istanze_cliente = {}
+istanze_istruttore = {}
 
 #Funzioni globali
 def definisci_momento():
@@ -25,9 +27,9 @@ def definisci_momento():
 #Classi
 class Palestra:
 
-    def __init__(self, nome, nr_iscritti = 0, elenco_iscritti = [], abbonamenti = {}, corsi = [], aperta = False, istruttori = [], cassa = 0, orari_apertura = {}, planning = {}):
+    def __init__(self, nome, elenco_iscritti = [], abbonamenti = {}, corsi = [], aperta = False, istruttori = [], cassa = 0, orari_apertura = {}, planning = {}):
         self.nome = nome
-        self.nr_iscritti = nr_iscritti
+        self.nr_iscritti = len(elenco_iscritti)
         self.elenco_iscritti = []
         self.abbonamenti = abbonamenti
         self.corsi = corsi
@@ -86,9 +88,11 @@ class Palestra:
             print("La palestra è chiusa!")
     
     def crea_cliente(self):
+        global istanze_cliente
         if self.aperta:
             nome = input("Insersci il nome completo del cliente:\n> ")
             cliente = Cliente(nome)
+            istanze_cliente[nome] = cliente
             return cliente
         else:
             print("La palestra è chiusa!")
@@ -116,7 +120,7 @@ class Palestra:
             return False
 
 class Cliente:
-    def __init__(self, nome, abbonamento = "", in_struttura = False):
+    def __init__(self, nome, abbonamento = "", in_struttura = False,):
         self.nome = nome
         self.abbonamento = abbonamento
         self.in_struttura = in_struttura
@@ -149,7 +153,7 @@ class Istruttore:
         pass
 
 #Oggetti
-wellness = Palestra("Wellness Club", elenco_iscritti = ["Prova"], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,11,16,21), "Tuesday" : (9,11,16,21), "Wednesday" : (9,11,16,21), "Thursday" : (9,11,16,21), "Friday" : (9,11,16,21), "Saturday" : (10,11,16,18)}, cassa = 3000)
+wellness = Palestra("Wellness Club", elenco_iscritti = [], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,11,16,21), "Tuesday" : (9,11,16,21), "Wednesday" : (9,11,16,21), "Thursday" : (9,11,16,21), "Friday" : (9,11,16,21), "Saturday" : (10,11,16,18)}, cassa = 3000)
 #wellness2 = Palestra("Wellness Club", elenco_iscritti = ["Prova"], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,21), "Tuesday" : (9,21), "Wednesday" :(9,21), "Thursday" : (9,21), "Friday" : (9,21), "Saturday" : (10,18)})
 #wellness2 test apertura orario continuato, con soli 2 orari al posto di 4 nella lista all'interno del dizionario degli orari
 
@@ -159,7 +163,7 @@ if giorno_sett in wellness.orari_apertura.keys() and (wellness.orari_apertura[gi
     wellness.aperta = True
 else:
     wellness.aperta = False
-print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento")
+print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente")
 wellness.planner()
 master_input = input("> ")
 while not master_input == "esci":
@@ -178,8 +182,13 @@ while not master_input == "esci":
         if wellness.cerca_cliente():
             cliente.prenotazione(wellness)
             print(wellness.planning)
-    elif master_input == "4":#da implementare o togliere
-        print(wellness)
+        for h in wellness.planning[data]:
+            for name in wellness.planning[data][h]:
+                if name in wellness.elenco_iscritti:
+                    istanze_cliente[name].arrivo_uscita_struttura()
+    elif master_input == "cerca cliente" or master_input == "4":#da implementare o togliere
+        cliente = wellness.cerca_cliente()
+        print(istanze_cliente[cliente[1]])
     else:
         print("Input non valido, riprova")
     master_input = input("> ")
