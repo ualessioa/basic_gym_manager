@@ -68,10 +68,14 @@ class Palestra:
             self.planning[data]["18"].append("Pilates")
         if giorno_sett == "Monday" or giorno_sett == "Wednesday" or giorno_sett == "Friday":
             self.planning[data]["19"].append("Walking")
-        if giorno_sett == "Tuesday" or giorno_sett == "Friday":
+        if giorno_sett == "Tuesday" or giorno_sett == "Thursday":
             self.planning[data]["18"].append("Yoga")
-        if giorno_sett == "Tuesday" or giorno_sett == "Friday":
+        if giorno_sett == "Tuesday" or giorno_sett == "Thursday":
             self.planning[data]["19"].append("Funzionale")
+        for istruttore in istanze_istruttore:
+            if giorno_sett in istanze_istruttore[istruttore].orari.keys():
+                if min(istanze_istruttore[istruttore].orari[giorno_sett]) <= int(orario[:2]) <= max(istanze_istruttore[istruttore].orari[giorno_sett]):
+                    istanze_istruttore[istruttore].inizio_fine_turno()
 
     def incasso(self, importo):
         if self.aperta:
@@ -98,17 +102,24 @@ class Palestra:
             print("La palestra è chiusa!")
     
     def crea_istruttore(self):#prima bozza da completare insieme alla classe istruttore
+        global istanze_istruttore
         if self.aperta:
             nome = input("Insersci il nome completo dell'istruttore:\n> ")
             attivita = input("Inserisci l'attività dell'istruttore\n> ")
+            if not attivita in self.corsi:
+                self.corsi.append(attivita)
             stipendio = input("Inserisci stipendio mensile istruttore\n> ")
-            cliente = Cliente(nome)
-            return cliente
+            orari = {"Monday" : (9,21), "Tuesday" : (9,21), "Wednesday" :(9,21), "Thursday" : (9,21), "Friday" : (9,21), "Saturday" : (10,18)}
+            istruttore = Istruttore(nome, attivita, stipendio, orari)
+            istanze_istruttore[nome] = istruttore
+            self.istruttori.append(istruttore.nome)
+            self.planner()
+            return istruttore
         else:
             print("La palestra è chiusa!")
 
     def __repr__(self):
-        message = f"La {self.nome} è una palestra con {self.nr_iscritti} iscritti, i suoi corsi sono: {self.corsi}\nGli abbonamenti sono: {self.abbonamenti}\nGli istruttori sono: {self.istruttori}\nIl planning di oggi è: {self.planning}\n" + ("La palestra è aperta adesso!" if self.aperta else "La palestra al momento è chiusa!")
+        message = f"La {self.nome} è una palestra con {self.nr_iscritti} iscritti, i suoi corsi sono: {self.corsi}\nGli abbonamenti sono: {self.abbonamenti}\nGli istruttori sono: {self.istruttori}\nIl planning di oggi è: {self.planning}\n" + (f"La palestra è aperta adesso! Gli istruttori di turno sono: {self.di_turno()}" if self.aperta else "La palestra al momento è chiusa!")
         return message
 
     def cerca_cliente(self):
@@ -118,6 +129,14 @@ class Palestra:
         else: 
             print("Nome non presente in sistema")
             return False
+
+    def di_turno(self):
+        global istanze_istruttore
+        lst = []
+        for nome in istanze_istruttore:
+            if istanze_istruttore[nome].di_turno == True:
+                lst.append(nome)
+        return lst
 
 class Cliente:
     def __init__(self, nome, abbonamento = "", in_struttura = False,):
@@ -141,16 +160,31 @@ class Cliente:
         
 
 class Istruttore:
-    def __init__(self, nome, corso = "", stipendio = 0, orari = {}, lista_schede = [], di_turno = False):
+    def __init__(self, nome, corso = "", stipendio = 0, orari = {}, schede_allenamento = [], di_turno = False):
         self.nome = nome
         self.corso = corso
         self.stipendio = stipendio
         self.orari = orari
-        self.lista_schede = lista_schede
+        self.schede_allenamento = schede_allenamento
         self.di_turno = di_turno
+    
+    def creazione_scheda(self):
+        nome = input("Inserire il nome della persona al quale allegare la scheda d'allenamento:\n> ")
+        if nome in self.schede_allenamento:
+            answer = input("Questo atleta ha già una scheda, vuoi aggiornarla?(s o n)\n> ")
+            if answer == "s":
+                self.schede_allenamento[nome] = input("Inserire gli esercizi:\n")
+            else:
+                return self.creazione_scheda()
+        else:
+            self.schede_allenamento[nome] = input("Inserire gli esercizi:\n")
+
+    def inizio_fine_turno(self):
+        self.di_turno = not self.di_turno
 
     def __repr__(self):
-        pass
+        message = f"{self.nome} è un istruttore di {self.corso}" + (f" {self.nome} al momento è in palestra!" if self.di_turno else f" {self.nome} al momento non è in palstra")
+        return message
 
 #Oggetti
 wellness = Palestra("Wellness Club", elenco_iscritti = [], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,11,16,21), "Tuesday" : (9,11,16,21), "Wednesday" : (9,11,16,21), "Thursday" : (9,11,16,21), "Friday" : (9,11,16,21), "Saturday" : (10,11,16,18)}, cassa = 3000)
@@ -163,7 +197,7 @@ if giorno_sett in wellness.orari_apertura.keys() and (wellness.orari_apertura[gi
     wellness.aperta = True
 else:
     wellness.aperta = False
-print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente")
+print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente\n5-aggiungi istruttore\n6-informazioni palestra")
 wellness.planner()
 master_input = input("> ")
 while not master_input == "esci":
@@ -189,6 +223,14 @@ while not master_input == "esci":
     elif master_input == "cerca cliente" or master_input == "4":#da implementare o togliere
         cliente = wellness.cerca_cliente()
         print(istanze_cliente[cliente[1]])
+    elif master_input == "aggiungi istruttore" or master_input == "5":
+        wellness.crea_istruttore()
+    elif master_input == "informazioni palestra" or master_input == "6":
+        print(wellness)
+    elif master_input == "7":
+        nome = input("Nome dell'istruttore:\n> ")
+        if nome in istanze_istruttore:
+            print(istanze_istruttore[nome])
     else:
         print("Input non valido, riprova")
     master_input = input("> ")
