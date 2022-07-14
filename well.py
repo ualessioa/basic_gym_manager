@@ -137,6 +137,14 @@ class Cliente:
         
 
 class Istruttore:
+    def __init__(self, nome, corso = "", stipendio = 0, orari = {}, lista_schede = [], di_turno = False):
+        self.nome = nome
+        self.corso = corso
+        self.stipendio = stipendio
+        self.orari = orari
+        self.lista_schede = lista_schede
+        self.di_turno = di_turno
+
     def __repr__(self):
         pass
 
