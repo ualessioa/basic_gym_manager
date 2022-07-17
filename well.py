@@ -48,34 +48,40 @@ class Palestra:
             print(f"La palestra adesso è chiusa, oggi la palestra ha incassato {self.diff}, il totale disponibile in cassa è {self.cassa}")
     
     def aggiungi_cliente(self, cliente):
-        self.elenco_iscritti.append(cliente.nome)
-        self.elenco_iscritti.sort()
-        #print(self.elenco_iscritti)
-        self.nr_iscritti += 1
-        abb = input("Scegli l'abbonamento tra i seguenti: mensile_2v : 35, trimestrale_2v : 90, mensile_3v : 40, trimestrale_3v : 105, open_6m : 200\n> ")
-        while not abb in self.abbonamenti.keys():
-            abb = input("Abbonamento non trovato, riprova: mensile_2v : 35, trimestrale_2v : 90, mensile_3v : 40, trimestrale_3v : 105, open_6m : 200\n> ") 
-        cliente.abbonamento += abb
-        self.incasso(self.abbonamenti.get(abb))
-        #print(self.elenco_iscritti)
-        #print(self.cassa)
+        if self.aperta:
+            self.elenco_iscritti.append(cliente.nome)
+            self.elenco_iscritti.sort()
+            #print(self.elenco_iscritti)
+            self.nr_iscritti += 1
+            abb = input("Scegli l'abbonamento tra i seguenti: mensile_2v : 35, trimestrale_2v : 90, mensile_3v : 40, trimestrale_3v : 105, open_6m : 200\n> ")
+            while not abb in self.abbonamenti.keys():
+                abb = input("Abbonamento non trovato, riprova: mensile_2v : 35, trimestrale_2v : 90, mensile_3v : 40, trimestrale_3v : 105, open_6m : 200\n> ") 
+            cliente.abbonamento += abb
+            self.incasso(self.abbonamenti.get(abb))
+            #print(self.elenco_iscritti)
+            #print(self.cassa)
+        else:
+            print("La palestraè chiusa!")
     
     def planner(self):
-        orario_ap = min(self.orari_apertura[giorno_sett])
-        orario_chius = max(self.orari_apertura[giorno_sett])
-        self.planning[data] = { str(x) : []  for x in range(orario_ap, orario_chius)}
-        if giorno_sett == "Monday" or giorno_sett == "Wednesday" or giorno_sett == "Friday":
-            self.planning[data]["18"].append("Pilates")
-        if giorno_sett == "Monday" or giorno_sett == "Wednesday" or giorno_sett == "Friday":
-            self.planning[data]["19"].append("Walking")
-        if giorno_sett == "Tuesday" or giorno_sett == "Thursday":
-            self.planning[data]["18"].append("Yoga")
-        if giorno_sett == "Tuesday" or giorno_sett == "Thursday":
-            self.planning[data]["19"].append("Funzionale")
-        for istruttore in istanze_istruttore:
-            if giorno_sett in istanze_istruttore[istruttore].orari.keys():
-                if min(istanze_istruttore[istruttore].orari[giorno_sett]) <= int(orario[:2]) <= max(istanze_istruttore[istruttore].orari[giorno_sett]):
-                    istanze_istruttore[istruttore].inizio_fine_turno()
+        if giorno_sett in self.orari_apertura.keys():
+            orario_ap = min(self.orari_apertura[giorno_sett])
+            orario_chius = max(self.orari_apertura[giorno_sett])
+            self.planning[data] = { str(x) : []  for x in range(orario_ap, orario_chius)}
+            if giorno_sett == "Monday" or giorno_sett == "Wednesday" or giorno_sett == "Friday":
+                self.planning[data]["18"].append("Pilates")
+            if giorno_sett == "Monday" or giorno_sett == "Wednesday" or giorno_sett == "Friday":
+                self.planning[data]["19"].append("Walking")
+            if giorno_sett == "Tuesday" or giorno_sett == "Thursday":
+                self.planning[data]["18"].append("Yoga")
+            if giorno_sett == "Tuesday" or giorno_sett == "Thursday":
+                self.planning[data]["19"].append("Funzionale")
+            for istruttore in istanze_istruttore:
+                if giorno_sett in istanze_istruttore[istruttore].orari.keys():
+                    if min(istanze_istruttore[istruttore].orari[giorno_sett]) <= int(orario[:2]) <= max(istanze_istruttore[istruttore].orari[giorno_sett]):
+                        istanze_istruttore[istruttore].inizio_fine_turno()
+        else:
+            return None
 
     def incasso(self, importo):
         if self.aperta:
@@ -101,7 +107,7 @@ class Palestra:
         else:
             print("La palestra è chiusa!")
     
-    def crea_istruttore(self):#prima bozza da completare insieme alla classe istruttore
+    def crea_istruttore(self):
         global istanze_istruttore
         if self.aperta:
             nome = input("Insersci il nome completo dell'istruttore:\n> ")
@@ -123,12 +129,15 @@ class Palestra:
         return message
 
     def cerca_cliente(self):
-        nome = input("Inserisci il nome  completo del cliente da cercare\n> ")
-        if nome in self.elenco_iscritti:
-            return True, nome
-        else: 
-            print("Nome non presente in sistema")
-            return False
+        if self.aperta:
+            nome = input("Inserisci il nome  completo del cliente da cercare\n> ")
+            if nome in self.elenco_iscritti:
+                return True, nome
+            else: 
+                print("Nome non presente in sistema")
+                return False
+        else:
+            print("La palestra è chiusa!")
 
     def di_turno(self):
         global istanze_istruttore
@@ -160,7 +169,7 @@ class Cliente:
         
 
 class Istruttore:
-    def __init__(self, nome, corso = "", stipendio = 0, orari = {}, schede_allenamento = [], di_turno = False):
+    def __init__(self, nome, corso = "", stipendio = 0, orari = {}, schede_allenamento = {}, di_turno = False):
         self.nome = nome
         self.corso = corso
         self.stipendio = stipendio
@@ -197,7 +206,7 @@ if giorno_sett in wellness.orari_apertura.keys() and (wellness.orari_apertura[gi
     wellness.aperta = True
 else:
     wellness.aperta = False
-print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente\n5-aggiungi istruttore\n6-informazioni palestra")
+print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente\n5-aggiungi istruttore\n6-informazioni palestra\n7-informazioni istruttore\n8-creazione scheda allenamento")
 wellness.planner()
 master_input = input("> ")
 while not master_input == "esci":
@@ -210,7 +219,7 @@ while not master_input == "esci":
             print(cliente)
         except:
             print("Errore!")
-    elif master_input == "prenota" or master_input == "3":
+    elif master_input == "prenota un allenamento" or master_input == "3":
         #wellness.planner() spostato dopo il primo controllo sull'apertura della palestra per avere a disposizione il planning globalmente
         print(wellness.planning) 
         if wellness.cerca_cliente():
@@ -221,16 +230,25 @@ while not master_input == "esci":
                 if name in wellness.elenco_iscritti:
                     istanze_cliente[name].arrivo_uscita_struttura()
     elif master_input == "cerca cliente" or master_input == "4":#da implementare o togliere
-        cliente = wellness.cerca_cliente()
-        print(istanze_cliente[cliente[1]])
+        try:
+            cliente = wellness.cerca_cliente()
+            print(istanze_cliente[cliente[1]])
+        except:
+            print("Non è stato possibile trovare il cliente")
     elif master_input == "aggiungi istruttore" or master_input == "5":
         wellness.crea_istruttore()
     elif master_input == "informazioni palestra" or master_input == "6":
         print(wellness)
-    elif master_input == "7":
+    elif master_input == "informazioni istruttore" or master_input == "7":
         nome = input("Nome dell'istruttore:\n> ")
         if nome in istanze_istruttore:
             print(istanze_istruttore[nome])
+    elif master_input == "creazione scheda allenamento" or master_input == "8":
+        nome = input("Nome dell'istruttore:\n> ")
+        if nome in istanze_istruttore:
+            istanze_istruttore[nome].creazione_scheda()
+        else:
+            print("Istruttore non trovato!")
     else:
         print("Input non valido, riprova")
     master_input = input("> ")
