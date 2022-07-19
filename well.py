@@ -10,6 +10,7 @@ anno = None
 giorno_sett = None
 istanze_cliente = {}
 istanze_istruttore = {}
+istanze_abbonamento = {}
 
 #Funzioni globali
 def definisci_momento():
@@ -61,7 +62,7 @@ class Palestra:
             #print(self.elenco_iscritti)
             #print(self.cassa)
         else:
-            print("La palestraè chiusa!")
+            print("La palestra è chiusa!")
     
     def planner(self):
         if giorno_sett in self.orari_apertura.keys():
@@ -194,6 +195,24 @@ class Istruttore:
     def __repr__(self):
         message = f"{self.nome} è un istruttore di {self.corso}" + (f" {self.nome} al momento è in palestra!" if self.di_turno else f" {self.nome} al momento non è in palstra")
         return message
+
+#Classe implementata nel processo di refactoring
+class Abbonamento:
+    def __init__(self, nome, prezzo = 0, inizio = data, scadenza = None, attivo = False):
+        self.nome = nome
+        self.prezzo = prezzo
+        self.inizio = inizio
+        self.scadenza = scadenza
+        self.attivo = attivo
+        self.set_durata()
+    
+    def set_durata(self):
+        pass
+
+    def attiva(self):
+        pass
+    
+
 
 #Oggetti
 wellness = Palestra("Wellness Club", elenco_iscritti = [], abbonamenti = {"mensile_2v": 35, "trimestrale_2v": 90, "mensile_3v": 40, "trimestrale_3v": 105, "open_6m": 200}, corsi = ["Pilates", "Walking", "Funzionale", "Yoga"], orari_apertura = {"Monday" : (9,11,16,21), "Tuesday" : (9,11,16,21), "Wednesday" : (9,11,16,21), "Thursday" : (9,11,16,21), "Friday" : (9,11,16,21), "Saturday" : (10,11,16,18)}, cassa = 3000)
