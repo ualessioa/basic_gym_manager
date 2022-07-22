@@ -54,9 +54,13 @@ class Palestra:
             self.elenco_iscritti.sort()
             #print(self.elenco_iscritti)
             self.nr_iscritti += 1
-            abb = input("Scegli l'abbonamento tra i seguenti: mensile_2v : 35, trimestrale_2v : 90, mensile_3v : 40, trimestrale_3v : 105, open_6m : 200\n> ")
+            abb = input(f"Scegli l'abbonamento tra i seguenti: {self.abbonamenti}\n> ")
             while not abb in self.abbonamenti.keys():
-                abb = input("Abbonamento non trovato, riprova: mensile_2v : 35, trimestrale_2v : 90, mensile_3v : 40, trimestrale_3v : 105, open_6m : 200\n> ") 
+                abb = input(f"Abbonamento non trovato, riprova: {self.abbonamenti}\n> ")
+            prezzo = self.abbonamenti[abb]
+            abb = abb.split("_")
+            istanze_abbonamento[cliente.nome] = Abbonamento(abb[0], prezzo, nr_ingressi = abb[1])
+            abb = "_".join(abb)
             cliente.abbonamento += abb
             self.incasso(self.abbonamenti.get(abb))
             #print(self.elenco_iscritti)
@@ -198,12 +202,13 @@ class Istruttore:
 
 #Classe implementata nel processo di refactoring
 class Abbonamento:
-    def __init__(self, nome, prezzo = 0, inizio = data, scadenza = None, attivo = False):
+    def __init__(self, nome, prezzo = 0, inizio = data, scadenza = None, attivo = False, nr_ingressi = 0):
         self.nome = nome
         self.prezzo = prezzo
         self.inizio = inizio
         self.scadenza = scadenza
         self.attivo = attivo
+        durate = ["mensile", "trimestrale", "semestrale"]
         self.set_durata()
     
     def set_durata(self):
