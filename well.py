@@ -40,6 +40,9 @@ class Palestra:
         self.orari_apertura = orari_apertura
         self.planning = planning
         self.diff = 0
+        #provvisiorio - tentare di capire approccio migliore per creare istanze classe abbonamento
+        for abb in self.abbonamenti:
+            istanze_abbonamento[abb] = Abbonamento(abb, self.abbonamenti[abb])
 
     def apri_chiudi(self):
         self.aperta = not self.aperta
@@ -198,12 +201,13 @@ class Istruttore:
 
 #Classe implementata nel processo di refactoring
 class Abbonamento:
-    def __init__(self, nome, prezzo = 0, inizio = data, scadenza = None, attivo = False):
+    def __init__(self, nome, prezzo = 0, inizio = data, scadenza = None, attivo = False, cliente = None):
         self.nome = nome
         self.prezzo = prezzo
         self.inizio = inizio
         self.scadenza = scadenza
         self.attivo = attivo
+        self.cliente = cliente
         self.set_durata()
     
     def set_durata(self):
@@ -212,6 +216,8 @@ class Abbonamento:
     def attiva(self):
         pass
     
+    def __repr__(self):
+        return f"{self.nome}, {self.prezzo}"
 
 
 #Oggetti
@@ -268,6 +274,8 @@ while not master_input == "esci":
             istanze_istruttore[nome].creazione_scheda()
         else:
             print("Istruttore non trovato!")
+    elif master_input == "9":
+        print(istanze_abbonamento)
     else:
         print("Input non valido, riprova")
     master_input = input("> ")
