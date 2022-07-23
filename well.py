@@ -21,13 +21,10 @@ def definisci_momento():
     anno = now.strftime("%Y")
     data = f"{giorno}/{mese}/{anno}"
     giorno_sett = now.strftime("%A")
-    #print(data)
     orario = now.strftime("%X")
-    #print(int(orario[:2]))
 
 #Classi
 class Palestra:
-
     def __init__(self, nome, elenco_iscritti = [], abbonamenti = {}, corsi = [], aperta = False, istruttori = [], cassa = 0, orari_apertura = {}, planning = {}):
         self.nome = nome
         self.nr_iscritti = len(elenco_iscritti)
@@ -40,9 +37,6 @@ class Palestra:
         self.orari_apertura = orari_apertura
         self.planning = planning
         self.diff = 0
-        #provvisiorio - tentare di capire approccio migliore per creare istanze classe abbonamento
-        for abb in self.abbonamenti:
-            istanze_abbonamento[abb] = Abbonamento(abb, self.abbonamenti[abb])
 
     def apri_chiudi(self):
         self.aperta = not self.aperta
@@ -62,12 +56,10 @@ class Palestra:
                 abb = input(f"Abbonamento non trovato, riprova: {self.abbonamenti}\n> ")
             prezzo = self.abbonamenti[abb]
             abb = abb.split("_")
-            istanze_abbonamento[cliente.nome] = Abbonamento(abb[0], prezzo, nr_ingressi = abb[1])
+            istanze_abbonamento[cliente.nome] = Abbonamento(abb[0], prezzo, nr_ingressi = abb[1][0])
             abb = "_".join(abb)
             cliente.abbonamento += abb
             self.incasso(self.abbonamenti.get(abb))
-            #print(self.elenco_iscritti)
-            #print(self.cassa)
         else:
             print("La palestra è chiusa!")
     
@@ -206,25 +198,49 @@ class Istruttore:
 #Classe implementata nel processo di refactoring
 class Abbonamento:
     def __init__(self, nome, prezzo = 0, inizio = data, scadenza = None, attivo = False, nr_ingressi = 0, cliente = None):
-
         self.nome = nome
         self.prezzo = prezzo
         self.inizio = inizio
         self.scadenza = scadenza
         self.attivo = attivo
-        durate = ["mensile", "trimestrale", "semestrale"]
         self.cliente = cliente
-
+        self.nr_ingressi = nr_ingressi
         self.set_durata()
+        self.attiva()
     
     def set_durata(self):
-        pass
+        global data
+        if self.nome == "mensile":
+            start_date = datetime.datetime.strptime(data, "%d/%m/%Y")
+            end_date = start_date + datetime.timedelta(days = 30)
+            end_date = end_date.strftime("%d/%m/%Y")
+            self.scadenza = end_date
+            print(self.nr_ingressi)
+            print(f"La scadenza è: {self.scadenza}")
+        elif self.nome == "trimestrale":
+            start_date = datetime.datetime.strptime(data, "%d/%m/%Y")
+            end_date = start_date + datetime.timedelta(days = 90)
+            end_date = end_date.strftime("%d/%m/%Y")
+            self.scadenza = end_date
+            print(self.nr_ingressi)
+            print(f"La scadenza è: {self.scadenza}")
+        elif self.nome == "open":
+            start_date = datetime.datetime.strptime(data, "%d/%m/%Y")
+            end_date = start_date + datetime.timedelta(days = 180)
+            end_date = end_date.strftime("%d/%m/%Y")
+            self.scadenza = end_date
+            print(self.nr_ingressi)
+            print(f"La scadenza è: {self.scadenza}")
 
     def attiva(self):
-        pass
+        global data
+        today = datetime.datetime.strptime(data, "%d/%m/%Y")
+        expiring = datetime.datetime.strptime(self.scadenza, "%d/%m/%Y")
+        if today <= expiring:
+            self.attivo = True
     
     def __repr__(self):
-        return f"{self.nome}, {self.prezzo}"
+        return f"{self.nome}, {self.prezzo}, {self.attivo}"
 
 
 #Oggetti
@@ -238,7 +254,7 @@ if giorno_sett in wellness.orari_apertura.keys() and (wellness.orari_apertura[gi
     wellness.aperta = True
 else:
     wellness.aperta = False
-print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente\n5-aggiungi istruttore\n6-informazioni palestra\n7-informazioni istruttore\n8-creazione scheda allenamento")
+print(f"Benvenuto in Wellness Manager, cosa vorresti fare?\n1-apertura\n2-aggiungi cliente\n3-prenota un allenamento\n4-cerca cliente\n5-aggiungi istruttore\n6-informazioni palestra\n7-informazioni istruttore\n8-creazione scheda allenamento\n9-mostra abbonamenti\nInserisci \"esci\" per uscire")
 wellness.planner()
 master_input = input("> ")
 while not master_input == "esci":
@@ -261,7 +277,7 @@ while not master_input == "esci":
             for name in wellness.planning[data][h]:
                 if name in wellness.elenco_iscritti:
                     istanze_cliente[name].arrivo_uscita_struttura()
-    elif master_input == "cerca cliente" or master_input == "4":#da implementare o togliere
+    elif master_input == "cerca cliente" or master_input == "4":
         try:
             cliente = wellness.cerca_cliente()
             print(istanze_cliente[cliente[1]])
@@ -281,7 +297,7 @@ while not master_input == "esci":
             istanze_istruttore[nome].creazione_scheda()
         else:
             print("Istruttore non trovato!")
-    elif master_input == "9":
+    elif master_input == "9" or master_input == "mostra abbonamenti":
         print(istanze_abbonamento)
     else:
         print("Input non valido, riprova")
